@@ -2,23 +2,16 @@
 #include <Arduino.h>
 #include "Accelerometer.h"
 
-Accelerometer::Accelerometer() {
-  this->calibrate(this->accel_x_calibration, ACCEL_XOUT_H);
-  this->calibrate(this->accel_y_calibration, ACCEL_YOUT_H);
-  this->calibrate(this->accel_z_calibration, ACCEL_ZOUT_H);
-}
-
-void Accelerometer::calibrate(float calibration_var, int address) {
-    Serial.print("Calibrating... ");
+float Accelerometer::calibrate(int address) {
+	float calibration_var = 0.0f;
     for (int i = 0; i < ACCEL_CALIBRATION_SAMPLES; i++)
     {
-        calibration_var += read_accel_data(address, 0);
+    	calibration_var += read_accel_data(address, 0.0f);
         delay(100);
     }
 
-    calibration_var /= ACCEL_CALIBRATION_SAMPLES;
-    delay(1000);
-    Serial.println("done!");
+   	calibration_var /= ACCEL_CALIBRATION_SAMPLES;
+	return calibration_var;
 }
 
 int32_t Accelerometer::read_accel_data(int address, float calibration) {
@@ -33,19 +26,19 @@ int32_t Accelerometer::read_accel_data(int address, float calibration) {
   table = table << 8;
   table += (uint8_t)Wire.read();
 
-  return ((table / ACCEL_DIVIDER) - calibration);
+  return ((table / ACCEL_DIVIDER) - (calibration));
 }
 
-int32_t Accelerometer::read_accel_x() {
-  return read_accel_data(ACCEL_XOUT_H, accel_x_calibration);
+int32_t Accelerometer::read_accel_x(float calibration) {
+  	return read_accel_data(ACCEL_XOUT_H, calibration);
 }
 
-int32_t Accelerometer::read_accel_y() {
-  return read_accel_data(ACCEL_YOUT_H, accel_y_calibration);
+int32_t Accelerometer::read_accel_y(float calibration) {
+  	return read_accel_data(ACCEL_YOUT_H, calibration);
 }
 
-int32_t Accelerometer::read_accel_z() {
-  return read_accel_data(ACCEL_ZOUT_H, accel_z_calibration);
+int32_t Accelerometer::read_accel_z(float calibration) {
+  	return read_accel_data(ACCEL_ZOUT_H, calibration);
 }
 
 

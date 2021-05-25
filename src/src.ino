@@ -9,15 +9,18 @@
 #include "WebServerUtils.h"
 #include "WebServerPages.h"
 
-#define USERNAME "admin"
-#define PASSWORD "admin"
+#define RATE 5
+#define INTERVAL 100
 
-#define WIFI_NAME "sdvincencij"
-#define WIFI_PASSWORD "uzivajnaspletu"
+Ticker ticker;
+ESP8266WebServer server(80);
+Accelerometer accelerometer = Accelerometer();
 
-#define PIN_LED 2
+float ac_x_calibration = 0.0f;
+float ac_y_calibration = 0.0f;
+float ac_z_calibration = 0.0f;
 
-ESP8266WebServer server(80);    
+void measureAccelerometer();
 
 void setup() {
 	Serial.begin(115200);
@@ -46,27 +49,56 @@ void setup() {
 		}
 	});
 
-	// here the list of headers to be recorded
 	const char * headerkeys[] = {"User-Agent","Cookie"} ;
 	size_t headerkeyssize = sizeof(headerkeys) / sizeof(char*);
-	// ask server to track these headers
 	server.collectHeaders(headerkeys, headerkeyssize );
 
 	server.begin(); 
 	Serial.println("Web server started");
 
-	// Accelerometer accel = Accelerometer();
-	// Serial.print("X: ");
-	// Serial.println(accel.read_accel_x());
-	// Serial.print("Y: ");
-	// Serial.println(accel.read_accel_y());
-	// Serial.print("Z: ");
-	// Serial.println(accel.read_accel_z());
+	ac_x_calibration = accelerometer.calibrate(ACCEL_XOUT_H);
+	ac_y_calibration = accelerometer.calibrate(ACCEL_YOUT_H);
+	ac_z_calibration = accelerometer.calibrate(ACCEL_ZOUT_H);
 
-	Serial.println("Ready!");
+	Serial.println("Accelerometer ready!");
+
+	ticker.attach_ms(INTERVAL, measureAccelerometer);
 
 }
 
 void loop() {
 	server.handleClient();
+}
+
+void measureAccelerometer() {
+
+	static uint32_t count = 0;
+	static float measurement_x = 0.0f;
+	static float measurement_y = 0.0f;
+	static float measurement_z = 0.0f;
+
+	measurement_x += accelerometer.read_accel_x(ac_x_calibration) / RATE;
+    measurement_y += accelerometer.read_accel_y(ac_y_calibration) / RATE;
+    measurement_z += accelerometer.read_accel_z(ac_z_calibration) / RATE;
+	
+	if (count % RATE == 0)
+    {
+        Serial.print("Accelerometer x: ");
+        Serial.print(measurement_x);
+        Serial.println();
+
+        Serial.print("Accelerometer y: ");
+        Serial.print(measurement_y);
+        Serial.println();
+
+        Serial.print("Accelerometer z: ");
+        Serial.print(measurement_z);
+        Serial.println();
+
+        measurement_x = 0.0f;
+        measurement_y = 0.0f;
+        measurement_z = 0.0f;
+    }
+
+	count = count + 1;
 }
