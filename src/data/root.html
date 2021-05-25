@@ -28,13 +28,20 @@
                     tmp.innerHTML = "Start recording";
                     tmp.href = "/?ACTION=START";
                 }
+
+                var save = document.getElementById("save");
+                save.addEventListener('click', function() {
+                    var name = document.getElementById("name");
+                    save.href += name.value;
+                })
             }
         </script>
     </head>
     <body onload="onLoad()">
         <a href="/login?DISCONNECT=YES">disconnect</a>
         <a id="record" href="/?ACTION=START">Start recording</a>
-        <a href="/?ACTION=SAVE">Save recordings</a>
+        <a id="save" href="/?ACTION=SAVE&NAME=">Save recordings</a>
         <a href="/?ACTION=DELETE">Delete recordings</a>
+        <input id="name" type="text">Recording name:</input>
     </body>
 </html>

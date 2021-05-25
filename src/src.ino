@@ -52,23 +52,23 @@ void setup() {
 			return;
 		}
 
-		if ((server).hasArg("ACTION")) {
-			if ((server).arg("ACTION") == "START") {
+		if (server.hasArg("ACTION")) {
+			if (server.arg("ACTION") == "START") {
 				Serial.println("Start recording called!");
 				ticker.attach_ms(INTERVAL, measureAccelerometer);
 			}
-			else if ((server).arg("ACTION") == "STOP") {
+			else if (server.arg("ACTION") == "STOP") {
 				Serial.println("Stop recording called!");
 				ticker.detach();
 			}
-			else if ((server).arg("ACTION") == "SAVE") {
+			else if (server.arg("ACTION") == "SAVE") {
 				Serial.println("Save recording called!");
-				int httpResponseCode = http.GET();
+				int httpResponseCode = http.PUT(server.arg("NAME"));
 				Serial.println(httpResponseCode);
 			}
-			else if ((server).arg("ACTION") == "DELETE") {
+			else if (server.arg("ACTION") == "DELETE") {
 				Serial.println("Delete recordings called!");
-				int httpResponseCode = http.PUT("");
+				int httpResponseCode = http.GET();
 				Serial.println(httpResponseCode);
 			}
 		}

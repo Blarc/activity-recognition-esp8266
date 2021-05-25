@@ -22,16 +22,20 @@ def post_data():
     return 'Success', 200
 
 
-@app.route('/data', methods=['GET'])
+@app.route('/data', methods=['PUT'])
 def save_data():
+    name = request.data.decode('utf-8')
+    if name.isspace():
+        name = 'name'
+
     dt_string = datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
-    with open(f'data/data-{dt_string}.txt', 'w', encoding='utf-8') as f:
+    with open(f'data/data-{dt_string}-{name}.txt', 'w', encoding='utf-8') as f:
         json.dump(data_history, f)
-    print(f'Recording saved to: data-{dt_string}.txt')
+    print(f'Recording saved to: data-{dt_string}_{name}.txt')
     return 'Success', 200
 
 
-@app.route('/data', methods=['PUT'])
+@app.route('/data', methods=['GET'])
 def delete_data():
     global data_history
     data_history = []
