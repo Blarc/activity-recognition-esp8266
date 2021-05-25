@@ -11,3 +11,6 @@
 .vscode/
 vscode
 examples
+.idea
+venv
+data

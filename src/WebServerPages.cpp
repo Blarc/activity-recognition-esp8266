@@ -28,12 +28,3 @@ void handleLogin(ESP8266WebServer* server){
     
     handleFileRead(server, "/login.html");
 }
-
-void handleRoot(ESP8266WebServer* server){
-    if (!isAuthentified(server)){
-        redirectToLogin(server);
-        return;
-    }
-
-    handleFileRead(server, "/root.html");
-}

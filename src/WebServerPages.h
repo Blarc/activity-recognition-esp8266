@@ -4,6 +4,5 @@
 #include <ESP8266WebServer.h>
 
 void handleLogin(ESP8266WebServer* server);
-void handleRoot(ESP8266WebServer* server);
 
 #endif

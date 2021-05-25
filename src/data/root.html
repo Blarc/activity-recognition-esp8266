@@ -7,8 +7,34 @@
 
         <style>
         </style>
+        <script>
+            function findGetParameter(parameterName) {
+                var result = null,
+                    tmp = [];
+                var items = location.search.substr(1).split("&");
+                for (var index = 0; index < items.length; index++) {
+                    tmp = items[index].split("=");
+                    if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
+                }
+                return result;
+            }
+            
+            function onLoad() {
+                var tmp = document.getElementById("record");
+                if (findGetParameter("ACTION") === "START") {
+                    tmp.innerHTML = "Stop recording";
+                    tmp.href = "/?ACTION=STOP";
+                } else {
+                    tmp.innerHTML = "Start recording";
+                    tmp.href = "/?ACTION=START";
+                }
+            }
+        </script>
     </head>
-    <body>
+    <body onload="onLoad()">
         <a href="/login?DISCONNECT=YES">disconnect</a>
+        <a id="record" href="/?ACTION=START">Start recording</a>
+        <a href="/?ACTION=SAVE">Save recordings</a>
+        <a href="/?ACTION=DELETE">Delete recordings</a>
     </body>
 </html>
