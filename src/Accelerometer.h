@@ -1,5 +1,5 @@
-#ifndef ACCEL_H
-#define ACCEL_H
+#ifndef ACCELEROMETER_H
+#define ACCELEROMETER_H
 
 #define I2C_ADD_MPU 104
 

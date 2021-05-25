@@ -1,5 +1,6 @@
 #include<Wire.h>
-#include "accelerometer.h"
+#include <Arduino.h>
+#include "Accelerometer.h"
 
 Accelerometer::Accelerometer() {
   this->calibrate(this->accel_x_calibration, ACCEL_XOUT_H);
