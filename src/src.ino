@@ -61,16 +61,6 @@ void setup() {
 				Serial.println("Stop recording called!");
 				ticker.detach();
 			}
-			else if (server.arg("ACTION") == "SAVE") {
-				Serial.println("Save recording called!");
-				int httpResponseCode = http.PUT(server.arg("NAME"));
-				Serial.println(httpResponseCode);
-			}
-			else if (server.arg("ACTION") == "DELETE") {
-				Serial.println("Delete recordings called!");
-				int httpResponseCode = http.GET();
-				Serial.println(httpResponseCode);
-			}
 		}
 
 		handleFileRead(&server, "/root.html");
