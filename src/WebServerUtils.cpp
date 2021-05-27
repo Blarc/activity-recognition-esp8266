@@ -50,6 +50,9 @@ bool handleFileRead(ESP8266WebServer* server, String path) {
     // If a folder is requested, send the index file
     if (path.endsWith("/")) 
         path += "index.html";
+    else if (!path.endsWith(".html")) {
+        path += ".html";
+    }
 
     String contentType = getContentType(path);              // Get the MIME type
     if (SPIFFS.exists(path)) {                              // If the file exists

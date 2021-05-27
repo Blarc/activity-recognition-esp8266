@@ -6,6 +6,12 @@ void handleLogin(ESP8266WebServer* server){
     Serial.println("handleLogin called!");
     String msg;
 
+    if ((*server).hasHeader("Cookie")){
+        Serial.print("Found cookie: ");
+        String cookie = (*server).header("Cookie");
+        Serial.println(cookie);
+    }
+
     if ((*server).hasArg("DISCONNECT")){
         Serial.println("Disconnect called!");
         (*server).sendHeader("Set-Cookie","ESPSESSIONID=0");

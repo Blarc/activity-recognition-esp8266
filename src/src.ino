@@ -45,7 +45,7 @@ void setup() {
 	initAccessPoint(WIFI_STA);
 
 	server.on("/login", [&]() { handleLogin(&server); });
-	server.on("/", [&]() {
+	server.on("/record", [&]() {
 
 		if (!isAuthentified(&server)){
 			redirectToLogin(&server);
@@ -61,6 +61,16 @@ void setup() {
 				Serial.println("Stop recording called!");
 				ticker.detach();
 			}
+		}
+
+		handleFileRead(&server, "/record.html");
+	});
+
+	server.on("/", [&]() {
+
+		if (!isAuthentified(&server)){
+			redirectToLogin(&server);
+			return;
 		}
 
 		handleFileRead(&server, "/root.html");

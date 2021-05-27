@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Record</title>
+
+        <style>
+            .menu {
+                margin-bottom: 15px;
+                background: #f7f7f7;
+                box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+                padding: 30px;
+            }
+            .menu {
+                width: 340px;
+                margin: 50px auto;
+                font-size: 15px;
+                text-align: center;
+            }
+            .btn {     
+                font-size: 15px;
+                font-weight: bold;
+                min-height: 30px;
+                padding: 8px;
+                border-radius: 2px;
+                width: 80%;
+            }
+            .btn:hover {
+                background-color: aquamarine;
+            }
+            .menu div {
+                margin: 20px auto;
+            }
+            .menu label {
+                font-size: 20px;
+            }
+            .menu input {
+                margin-top: 10px;
+                font-size: 20px;
+                width: 78%;
+            }
+            #back {
+                width: fit-content;
+            }
+        </style>
+        <script>
+            const URL = 'http://192.168.15.39:8080/data';
+            var recordAction = "STOP";
+
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            if (urlParams.has("ACTION")) {
+                recordAction = urlParams.get("ACTION");
+            }
+
+            function onRecord() {
+                if (recordAction === "STOP") {
+                    window.location.href = "/record?ACTION=START";
+                }
+                else if (recordAction == "START") {
+                    window.location.href = "/record?ACTION=STOP";
+                }
+            }
+
+            function onSave() {
+                var xhr = new XMLHttpRequest();
+                xhr.open('PUT', URL, true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.send(JSON.stringify({
+                    name: document.getElementById('name').value
+                }));
+            }
+
+            function onDelete() {
+                var xhr = new XMLHttpRequest();
+                xhr.open('DELETE', URL, true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.send();
+            }
+
+            function onLoad() {
+                if (recordAction === "START") {
+                    document.getElementById("record").innerHTML = "Stop recording";
+                }
+                else if (recordAction === "STOP") {
+                    document.getElementById("record").innerHTML = "Start recording";
+                }
+            }
+
+        </script>
+    </head>
+    <body onload="onLoad()">
+        <div class='menu'>
+            <h2>Record</h2>
+            <div>
+                <label for="name">Recording name:</label>
+                <input id="name" type="text">
+            </div>
+            <div>
+                <button class="btn" id="record" type="button" onclick="onRecord()">Start recording</button>
+            </div>
+            <div>
+                <button class="btn" type="button" onclick="onSave()">Save recording</button>
+            </div>
+            <div>
+                <button class="btn" type="button" onclick="onDelete()">Delete recording</button>
+            </div>
+            <div>
+                <button id="back" class="btn type="button" onclick="window.location.href = '/'">Back</button>
+            </div>
+        </div>
+    </body>
+</html>
