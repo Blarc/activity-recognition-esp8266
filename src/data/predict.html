@@ -35,14 +35,86 @@
             #back {
                 width: fit-content;
             }
+            #prediction {
+                font-size: 40px;
+                text-transform: uppercase;
+                font-weight: bold;
+            }
         </style>
         <script>
+            const URL = 'http://192.168.15.39:8080/prediction';
+            var recordAction = "STOP";
+
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+
+            var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        console.log(this.responseText);
+                        var tmp = document.getElementById("prediction")
+                        tmp.innerHTML = this.responseText
+                        tmp.style.color = randDarkColor()
+                    }
+                }
+
+            setInterval(() => {
+                if (recordAction === "START") {
+                    xhttp.open("GET", URL, true)
+                    xhttp.setRequestHeader('Content-Type', 'application/json');
+                    xhttp.send(null);
+                }
+            }, 1000);
+
+            if (urlParams.has("ACTION")) {
+                recordAction = urlParams.get("ACTION");
+            }
+
+            function onPredict() {
+                if (recordAction === "STOP") {
+                    window.location.href = "/predict?ACTION=START";
+                }
+                else if (recordAction == "START") {
+                    window.location.href = "/predict?ACTION=STOP";
+                }
+            }
+
+            function onLoad() {
+                if (recordAction === "START") {
+                    document.getElementById("record").innerHTML = "Stop predicting";
+                }
+                else if (recordAction === "STOP") {
+                    document.getElementById("record").innerHTML = "Start predicting";
+                }
+            }
+
+            function randDarkColor() {
+                var lum = -0.25;
+                var hex = String('#' + Math.random().toString(16).slice(2, 8).toUpperCase()).replace(/[^0-9a-f]/gi, '');
+                if (hex.length < 6) {
+                    hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+                }
+                var rgb = "#",
+                    c, i;
+                for (i = 0; i < 3; i++) {
+                    c = parseInt(hex.substr(i * 2, 2), 16);
+                    c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
+                    rgb += ("00" + c).substr(c.length);
+                }
+                return rgb;
+            }
+
         </script>
     </head>
-    <body>
+    <body onload="onLoad()">
         <div class='menu'>
             <h2>Predict</h2>
-            <p>Not implemented yet! =(</p>
+            <p>This is a powefull tool. Use it wisely!</p>
+            <p>You are:</p>
+            <p id="prediction">AWESOME</p>
+            <div>
+                <button class="btn" id="record" type="button" onclick="onPredict()">Start predicting</button>
+            </div>
             <div>
                 <button id="back" class="btn type="button" onclick="window.location.href = '/'">Back</button>
             </div>

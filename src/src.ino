@@ -20,8 +20,9 @@ HTTPClient http;
 ESP8266WebServer server(80);
 Accelerometer accelerometer = Accelerometer();
 
+String activityType;
 bool sendData = false;
-const size_t CAPACTIY = JSON_ARRAY_SIZE(N * 3);
+const size_t CAPACTIY = JSON_ARRAY_SIZE(N * 4);
 
 float ac_x_calibration = 0.0f;
 float ac_y_calibration = 0.0f;
@@ -55,6 +56,12 @@ void setup() {
 		if (server.hasArg("ACTION")) {
 			if (server.arg("ACTION") == "START") {
 				Serial.println("Start recording called!");
+
+				bool isConnected = http.begin("http://192.168.15.39:8080/data");
+				Serial.print("Is connected to /data: ");
+				Serial.println(isConnected);
+
+				activityType = server.arg("TYPE");
 				ticker.attach_ms(INTERVAL, measureAccelerometer);
 			}
 			else if (server.arg("ACTION") == "STOP") {
@@ -64,6 +71,32 @@ void setup() {
 		}
 
 		handleFileRead(&server, "/record.html");
+	});
+
+	server.on("/predict", [&]() {
+
+		if (!isAuthentified(&server)){
+			redirectToLogin(&server);
+			return;
+		}
+
+		if (server.hasArg("ACTION")) {
+			if (server.arg("ACTION") == "START") {
+				Serial.println("Start predicting called!");
+
+				bool isConnected = http.begin("http://192.168.15.39:8080/prediction");
+				Serial.print("Is connected to /prediction: ");
+				Serial.println(isConnected);
+
+				ticker.attach_ms(INTERVAL, measureAccelerometer);
+			}
+			else if (server.arg("ACTION") == "STOP") {
+				Serial.println("Stop predicting called!");
+				ticker.detach();
+			}
+		}
+
+		handleFileRead(&server, "/predict.html");
 	});
 
 	server.on("/", [&]() {
@@ -116,8 +149,10 @@ void loop() {
 		Serial.println("Sending data... ");
 
 		StaticJsonDocument<CAPACTIY> doc;
-		JsonArray array = doc.to<JsonArray>();
+		JsonObject root = doc.to<JsonObject>();
+		root["type"] = activityType;
 
+		JsonArray array = root.createNestedArray("data");
 		for (int i = 0; i < N; i++) {
 			array.add(data_x[i]);
 			array.add(data_y[i]);
@@ -128,6 +163,9 @@ void loop() {
 		serializeJson(doc, json);
 		int httpResponseCode = http.POST(json);
 		Serial.println(httpResponseCode);
+		if (httpResponseCode == 200) {
+			Serial.println(http.getString());
+		}
 		sendData = false;
 	}
 }

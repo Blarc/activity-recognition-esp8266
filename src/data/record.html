@@ -35,6 +35,11 @@
             .menu label {
                 font-size: 20px;
             }
+            .menu select {
+                font-size: 20px;
+                width: 80%;
+                text-align-last: center;
+            }
             .menu input {
                 margin-top: 10px;
                 font-size: 20px;
@@ -47,19 +52,25 @@
         <script>
             const URL = 'http://192.168.15.39:8080/data';
             var recordAction = "STOP";
+            var dropdownValue = "stillness";
 
             const queryString = window.location.search;
             const urlParams = new URLSearchParams(queryString);
+
             if (urlParams.has("ACTION")) {
                 recordAction = urlParams.get("ACTION");
+            }
+            
+            if (urlParams.has("TYPE")) {
+                dropdownValue = urlParams.get("TYPE");
             }
 
             function onRecord() {
                 if (recordAction === "STOP") {
-                    window.location.href = "/record?ACTION=START";
+                    window.location.href = "/record?ACTION=START&TYPE=" + document.getElementById("dropdown").value;
                 }
                 else if (recordAction == "START") {
-                    window.location.href = "/record?ACTION=STOP";
+                    window.location.href = "/record?ACTION=STOP&TYPE=" + document.getElementById("dropdown").value;
                 }
             }
 
@@ -80,11 +91,18 @@
             }
 
             function onLoad() {
+                document.getElementById("dropdown").value = dropdownValue;
                 if (recordAction === "START") {
                     document.getElementById("record").innerHTML = "Stop recording";
+                    document.getElementById("save").disabled = true;
+                    document.getElementById("delete").disabled = true;
+                    document.getElementById("dropdown").disabled = true;
                 }
                 else if (recordAction === "STOP") {
                     document.getElementById("record").innerHTML = "Start recording";
+                    document.getElementById("save").disabled = false;
+                    document.getElementById("delete").disabled = false;
+                    document.getElementById("dropdown").disabled = false;
                 }
             }
 
@@ -97,14 +115,19 @@
                 <label for="name">Recording name:</label>
                 <input id="name" type="text">
             </div>
+            <select id="dropdown">
+                <option value="stillness">Stillness</option>
+                <option value="walking">Walking</option>
+                <option value="jumping">Jumping</option>
+            </select>
             <div>
                 <button class="btn" id="record" type="button" onclick="onRecord()">Start recording</button>
             </div>
             <div>
-                <button class="btn" type="button" onclick="onSave()">Save recording</button>
+                <button class="btn" id="save" type="button" onclick="onSave()">Save recording</button>
             </div>
             <div>
-                <button class="btn" type="button" onclick="onDelete()">Delete recording</button>
+                <button class="btn" id="delete" type="button" onclick="onDelete()">Delete recording</button>
             </div>
             <div>
                 <button id="back" class="btn type="button" onclick="window.location.href = '/'">Back</button>
