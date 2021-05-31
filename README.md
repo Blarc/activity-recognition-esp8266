@@ -16,6 +16,8 @@ For running this project you need the ESP8266 board with MPU9250 sensor.
 
 For running the program on the board you need Arduino IDE and `ArduinoJson` library installed. In the `src/WebServerUtils.h` you need to change the WiFi credentials, optionally you can also change the username and password. You also need to change the `serverUrl` in `src/src.ino` to your computer's IP address.
 
+Before running the program you also need to upload the `src/data` folder to the board. You can do this with `Arduino IDE -> Tools -> ESP8266 Sketch Data Upload`.
+
 ### Server
 
 To start the server, run the `backend.py`. The default server port is `8080`.
