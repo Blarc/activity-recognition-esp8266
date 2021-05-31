@@ -1,5 +1,5 @@
-#include<Wire.h>
-#include<Ticker.h>
+#include <Wire.h>
+#include <Ticker.h>
 #include <ESP8266mDNS.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
@@ -13,6 +13,8 @@
 #define RATE 5
 #define INTERVAL 10
 #define N 10
+
+const String serverUrl = "http://192.168.15.39:8080";
 
 Ticker ticker;
 HTTPClient http;
@@ -62,7 +64,7 @@ void setup() {
 			if (server.arg("ACTION") == "START") {
 				Serial.println("Start recording called!");
 
-				bool isConnected = http.begin("http://192.168.15.39:8080/data");
+				bool isConnected = http.begin(serverUrl + "/data");
 				Serial.print("Is connected to /data: ");
 				Serial.println(isConnected);
 
@@ -89,14 +91,14 @@ void setup() {
 			if (server.arg("ACTION") == "START") {
 				Serial.println("Start predicting called!");
 
-				bool isConnected = http.begin("http://192.168.15.39:8080/prediction");
+				bool isConnected = http.begin(serverUrl + "/prediction");
 				Serial.print("Is connected to /prediction: ");
 				Serial.println(isConnected);
 
 				ticker.attach_ms(INTERVAL, measureAccelerometer);
 			}
 			else if (server.arg("ACTION") == "STOP") {
-				Serial.println("Stop predicting called!");
+				Serial.println("Stop predicting called.");
 				ticker.detach();
 			}
 		}
@@ -132,17 +134,13 @@ void setup() {
 	server.collectHeaders(headerkeys, headerkeyssize );
 
 	server.begin(); 
-	Serial.println("Web server started");
+	Serial.println("Web server started.");
 
 	ac_x_calibration = accelerometer.calibrate(ACCEL_XOUT_H);
 	ac_y_calibration = accelerometer.calibrate(ACCEL_YOUT_H);
 	ac_z_calibration = accelerometer.calibrate(ACCEL_ZOUT_H);
 
-	Serial.println("Accelerometer ready!");
-
-	bool isConnected = http.begin("http://192.168.15.39:8080/data");
-	Serial.print("Is connected to server: ");
-	Serial.println(isConnected);
+	Serial.println("Accelerometer ready.");
 
 }
 

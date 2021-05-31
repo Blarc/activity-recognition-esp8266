@@ -24,9 +24,7 @@ types = {
 recordings = []
 prediction_result = 'happy'
 
-columns = 'x1,y1,z1,x2,y2,z2,x3,y3,z3,x4,y4,z4,x5,y5,z5,type'
-
-columns_new = 'mean_z,' \
+columns = 'mean_z,' \
               'APF_x, APF_y, APF_z,' \
               'VarAPF,' \
               'STD_x, STD_y, STD_z,' \
@@ -104,7 +102,7 @@ def save_data():
 
     dt_string = datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
     with open(f'data/data-{dt_string}-{name}.csv', 'w', encoding='utf-8') as f:
-        print(columns_new, file=f)
+        print(columns, file=f)
         for record in recordings:
             print(*record, sep=',', file=f)
 

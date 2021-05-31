@@ -8,8 +8,8 @@
 #define USERNAME "admin"
 #define PASSWORD "admin"
 
-#define WIFI_NAME "sdvincencij"
-#define WIFI_PASSWORD "uzivajnaspletu"
+#define WIFI_NAME "wifi_name"
+#define WIFI_PASSWORD "wifi_password"
 
 
 bool handleFileRead(ESP8266WebServer* server, String path);
