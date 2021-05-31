@@ -50,12 +50,15 @@
 
             var xhttp = new XMLHttpRequest();
                 xhttp.onreadystatechange = function() {
+                    var tmp = document.getElementById("prediction")
                     if (this.readyState == 4 && this.status == 200) {
                         console.log(this.responseText);
-                        var tmp = document.getElementById("prediction")
                         tmp.innerHTML = this.responseText
-                        tmp.style.color = randDarkColor()
+                    } else {
+                        console.log(this.status);
+                        tmp.innerHTML = "=("
                     }
+                    tmp.style.color = randDarkColor()
                 }
 
             setInterval(() => {
@@ -82,9 +85,11 @@
             function onLoad() {
                 if (recordAction === "START") {
                     document.getElementById("record").innerHTML = "Stop predicting";
+                    document.getElementById("back").disabled = true;
                 }
                 else if (recordAction === "STOP") {
                     document.getElementById("record").innerHTML = "Start predicting";
+                    document.getElementById("back").disabled = false;
                 }
             }
 

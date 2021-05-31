@@ -5,9 +5,6 @@
 #include <FS.h>
 #include "WebServerUtils.h"
 
-void initAccessPoint(WiFiMode wifiMode);
-String getContentType(String filename);
-
 void initAccessPoint(WiFiMode wifiMode) {
     if (wifiMode == WIFI_AP) {
         WiFi.mode(WIFI_AP);
@@ -90,4 +87,43 @@ void redirectToLogin(ESP8266WebServer* server) {
     (*server).sendHeader("Location","/login");
     (*server).sendHeader("Cache-Control","no-cache");
     (*server).send(301);
+}
+
+void handleLogin(ESP8266WebServer* server){
+    Serial.println("handleLogin called!");
+    String msg;
+
+    if ((*server).hasArg("DISCONNECT")){
+        Serial.println("Disconnect called!");
+        (*server).sendHeader("Set-Cookie","ESPSESSIONID=0");
+        redirectToLogin(server);
+        return;
+    }
+
+    if ((*server).hasHeader("Cookie")){
+        Serial.print("Found cookie: ");
+        String cookie = (*server).header("Cookie");
+        Serial.println(cookie);
+
+        if (cookie.equals("ESPSESSIONID=1")) {
+            (*server).sendHeader("Location","/");
+            (*server).sendHeader("Cache-Control","no-cache");
+            (*server).send(301);
+        }
+    }
+
+    if ((*server).hasArg("USERNAME") && (*server).hasArg("PASSWORD")){
+        if ((*server).arg("USERNAME") == USERNAME &&  (*server).arg("PASSWORD") == PASSWORD ){
+            (*server).sendHeader("Location","/");
+            (*server).sendHeader("Cache-Control","no-cache");
+            (*server).sendHeader("Set-Cookie","ESPSESSIONID=1");
+            (*server).send(301);
+            Serial.println("Log in Successful");
+            return;
+        }
+        msg = "Wrong username/password! try again.";
+        Serial.println("Log in Failed");
+    }
+    
+    handleFileRead(server, "/login.html");
 }

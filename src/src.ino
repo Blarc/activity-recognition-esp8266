@@ -9,11 +9,10 @@
 
 #include "Accelerometer.h"
 #include "WebServerUtils.h"
-#include "WebServerPages.h"
 
-#define RATE 1
-#define INTERVAL 100
-#define N 5
+#define RATE 5
+#define INTERVAL 10
+#define N 10
 
 Ticker ticker;
 HTTPClient http;
@@ -31,6 +30,12 @@ float ac_z_calibration = 0.0f;
 int32_t* data_x = (int32_t*) calloc(N, sizeof(int32_t));
 int32_t* data_y = (int32_t*) calloc(N, sizeof(int32_t));
 int32_t* data_z = (int32_t*) calloc(N, sizeof(int32_t));
+
+float a_lf = 0.0158;
+float b_lf = 0.9843;
+float previous_lf_x = 0.0f;
+float previous_lf_y = 0.0f;
+float previous_lf_z = 0.0f;
 
 void measureAccelerometer();
 
@@ -164,7 +169,8 @@ void loop() {
 		int httpResponseCode = http.POST(json);
 		Serial.println(httpResponseCode);
 		if (httpResponseCode == 200) {
-			Serial.println(http.getString());
+			String prediction = http.getString();
+			Serial.println(prediction);
 		}
 		sendData = false;
 	}
@@ -178,9 +184,23 @@ void measureAccelerometer() {
 	static int32_t measurement_y = 0;
 	static int32_t measurement_z = 0;
 
-	measurement_x += accelerometer.read_accel_x(ac_x_calibration) / RATE;
-    measurement_y += accelerometer.read_accel_y(ac_y_calibration) / RATE;
-    measurement_z += accelerometer.read_accel_z(ac_z_calibration) / RATE;
+	measurement_x += accelerometer.read_accel_x(ac_x_calibration);
+    measurement_y += accelerometer.read_accel_y(ac_y_calibration);
+    measurement_z += accelerometer.read_accel_z(ac_z_calibration);
+
+	// low pass filter
+	float current_lf_x = a_lf * measurement_x + b_lf * previous_lf_x;
+	previous_lf_x = current_lf_x;
+
+	float current_lf_y = a_lf * measurement_y + b_lf * previous_lf_y;
+	previous_lf_y = current_lf_y;
+
+	float current_lf_z = a_lf * measurement_z + b_lf * previous_lf_z;
+	previous_lf_z = current_lf_z;
+
+	measurement_x -= round(current_lf_x);
+	measurement_y -= round(current_lf_y);
+	measurement_z -= round(current_lf_z);
 
 	if (index % N == 0) {
 		sendData = true;
@@ -189,16 +209,9 @@ void measureAccelerometer() {
 	if (count % RATE == 0)
     {
 
-		data_x[index % N] = measurement_x;
-		data_y[index % N] = measurement_y;
-		data_z[index % N] = measurement_z;
-
-		// Serial.print("Accelerometer x: ");
-		// Serial.println(measurement_x);
-		// Serial.print("Accelerometer y: ");
-		// Serial.println(measurement_y);
-		// Serial.print("Accelerometer z: ");
-		// Serial.println(measurement_z);
+		data_x[index % N] = measurement_x / RATE;
+		data_y[index % N] = measurement_y / RATE;
+		data_z[index % N] = measurement_z / RATE;
 
         measurement_x = 0.0f;
         measurement_y = 0.0f;

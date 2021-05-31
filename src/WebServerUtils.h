@@ -16,5 +16,7 @@ bool handleFileRead(ESP8266WebServer* server, String path);
 void initAccessPoint(WiFiMode wifiMode);
 bool isAuthentified(ESP8266WebServer* server);
 void redirectToLogin(ESP8266WebServer* server);
+void handleLogin(ESP8266WebServer* server);
+String getContentType(String filename);
 
 #endif
