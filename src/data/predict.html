@@ -4,6 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <title>Predict</title>
+        <script src="https://code.highcharts.com/highcharts.js"></script>
 
         <style>
             .menu {
@@ -32,6 +33,10 @@
             .menu div {
                 margin: 20px auto;
             }
+            .chart {
+                width: min-content;
+                display: inline-block;
+            }
             #back {
                 width: fit-content;
             }
@@ -48,15 +53,18 @@
             const queryString = window.location.search;
             const urlParams = new URLSearchParams(queryString);
 
+            if (urlParams.has("ACTION")) {
+                recordAction = urlParams.get("ACTION");
+            }
+
             var xhttp = new XMLHttpRequest();
-                xhttp.onreadystatechange = function() {
-                    var tmp = document.getElementById("prediction")
-                    if (this.readyState == 4 && this.status == 200) {
-                        console.log(this.responseText);
-                        tmp.innerHTML = this.responseText
-                        tmp.style.color = randDarkColor()
-                    }
+            xhttp.onreadystatechange = function() {
+                var tmp = document.getElementById("prediction")
+                if (this.readyState == 4 && this.status == 200) {
+                    tmp.innerHTML = this.responseText
+                    tmp.style.color = randDarkColor()
                 }
+            }
 
             setInterval(() => {
                 if (recordAction === "START") {
@@ -65,10 +73,6 @@
                     xhttp.send(null);
                 }
             }, 1000);
-
-            if (urlParams.has("ACTION")) {
-                recordAction = urlParams.get("ACTION");
-            }
 
             function onPredict() {
                 if (recordAction === "STOP") {
@@ -89,6 +93,124 @@
                     document.getElementById("back").disabled = false;
                 }
             }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                const chartX = Highcharts.chart('char-x', {
+                    title: {
+                        text: ''
+                    },
+                    xAxis: { 
+                        type: 'datetime',
+                        dateTimeLabelFormats: { 
+                            second: '%H:%M:%S' 
+                        }
+                    },
+                    yAxis: {
+                        title: { 
+                            text: 'Acceleration X' 
+                        }
+                    },
+                    series: [{
+                        showInLegend: false
+                    }],
+                    credits: { 
+                        enabled: false 
+                    },
+                    plotOptions: {
+                        line: {
+                            marker: {
+                                enabled: false
+                            }
+                        }
+                    }
+                });
+
+                const chartY = Highcharts.chart('char-y', {
+                    title: {
+                        text: ''
+                    },
+                    xAxis: { 
+                        type: 'datetime',
+                        dateTimeLabelFormats: { 
+                            second: '%H:%M:%S' 
+                        }
+                    },
+                    yAxis: {
+                        title: { 
+                            text: 'Acceleration Y' 
+                        }
+                    },
+                    series: [{
+                        showInLegend: false
+                    }],
+                    credits: { 
+                        enabled: false 
+                    },
+                    plotOptions: {
+                        line: {
+                            marker: {
+                                enabled: false
+                            }
+                        }
+                    }
+                });
+
+                const chartZ = Highcharts.chart('char-z', {
+                    title: {
+                        text: ''
+                    },
+                    xAxis: { 
+                        type: 'datetime',
+                        dateTimeLabelFormats: { 
+                            second: '%H:%M:%S' 
+                        }
+                    },
+                    yAxis: {
+                        title: { 
+                            text: 'Acceleration Z' 
+                        }
+                    },
+                    series: [{
+                        showInLegend: false
+                    }],
+                    credits: { 
+                        enabled: false 
+                    },
+                    plotOptions: {
+                        line: {
+                            marker: {
+                                enabled: false
+                            }
+                        }
+                    }
+                });
+
+                var xhttpCharts = new XMLHttpRequest();
+                xhttpCharts.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        var time = (new Date()).getTime();
+                        var json = JSON.parse(this.responseText);
+
+                        if(chartX.series[0].data.length > 40) {
+                            chartX.series[0].addPoint([time, json.x], true, true, true);
+                            chartY.series[0].addPoint([time, json.y], true, true, true);
+                            chartZ.series[0].addPoint([time, json.z], true, true, true);
+                        } else {
+                            chartX.series[0].addPoint([time, json.x], true, false, true);
+                            chartY.series[0].addPoint([time, json.y], true, false, true);
+                            chartZ.series[0].addPoint([time, json.z], true, false, true);
+                        }
+                    }
+                };
+
+
+                setInterval(() => {
+                    if (recordAction === "START") {
+                        xhttpCharts.open("GET", "/accel", true);
+                        xhttpCharts.send();
+                    }
+                }, 1000);
+            });
 
             function randDarkColor() {
                 var lum = -0.25;
@@ -120,6 +242,11 @@
             <div>
                 <button id="back" class="btn type="button" onclick="window.location.href = '/'">Back</button>
             </div>
+        </div>
+        <div>
+            <div id="char-x" class='chart'></div>
+            <div id="char-y" class='chart'></div>
+            <div id="char-z" class='chart'></div>
         </div>
     </body>
 </html>

@@ -39,6 +39,10 @@ float previous_lf_x = 0.0f;
 float previous_lf_y = 0.0f;
 float previous_lf_z = 0.0f;
 
+int32_t ac_x = 0;
+int32_t ac_y = 0;
+int32_t ac_z = 0;
+
 void measureAccelerometer();
 
 void setup() {
@@ -98,12 +102,27 @@ void setup() {
 				ticker.attach_ms(INTERVAL, measureAccelerometer);
 			}
 			else if (server.arg("ACTION") == "STOP") {
+				ac_x = 0;
+				ac_y = 0;
+				ac_z = 0;
 				Serial.println("Stop predicting called.");
 				ticker.detach();
 			}
 		}
 
 		handleFileRead(&server, "/predict.html");
+	});
+
+	server.on("/accel", [&]() {
+		StaticJsonDocument<JSON_OBJECT_SIZE(3)> doc;
+		JsonObject root = doc.to<JsonObject>();
+		root["x"] = ac_x;
+		root["y"] = ac_y;
+		root["z"] = ac_z;
+
+		String json;
+		serializeJson(doc, json);
+		server.send(200, "text/html", json);
 	});
 
 	server.on("/", [&]() {
@@ -210,6 +229,10 @@ void measureAccelerometer() {
 		data_x[index % N] = measurement_x / RATE;
 		data_y[index % N] = measurement_y / RATE;
 		data_z[index % N] = measurement_z / RATE;
+
+		ac_x = data_x[index % N];
+		ac_y = data_y[index % N];
+		ac_z = data_z[index % N];
 
         measurement_x = 0.0f;
         measurement_y = 0.0f;
